@@ -1,20 +1,20 @@
 cask "keystats" do
-  version "0.1.2"
-  sha256 "3eeb8ee438674c1f602fce126d388bc4c219f0d1e57ffe4662885423de075ae4"
+  version "0.1.3"
+  sha256 "64b15e896f5edee25b5a8363602b816232749f0e51657e4b9215dab67b272007"
 
   url "https://github.com/gapul/keystats/releases/download/v#{version}/keystats-#{version}-macos-arm64.zip"
   name "Keystats"
   desc "打鍵アナリティクス — キー×アプリ統計。入力テキスト本文は保存しない"
   homepage "https://github.com/gapul/keystats"
 
-  depends_on macos: :ventura
+  depends_on macos: ":ventura"
   depends_on arch: :arm64
 
-  app "keystats-#{version}/Keystats.app"
+  app "keystats-#{version}/.payload/Keystats.app"
   # CLI(top/apps/combos)。デーモン本体と同じバイナリ。
   binary "#{appdir}/Keystats.app/Contents/MacOS/keystatsd", target: "keystats"
 
-  uninstall quit:     "net.gapul.keystats.gui",
+  uninstall quit:      "net.gapul.keystats.gui",
             launchctl: [
               "net.gapul.keystats",
               "net.gapul.keystats.gui",
