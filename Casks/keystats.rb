@@ -1,6 +1,6 @@
 cask "keystats" do
-  version "0.1.0"
-  sha256 "960901d6e33201567e95bb646a43f2c70afa5b86ac4ed20d1366c2339a09f612"
+  version "0.1.1"
+  sha256 "a1d2db05616692cd778435de250a61c78f52dc81cf4cf3c7a2958de44f274118"
 
   url "https://github.com/gapul/keystats/releases/download/v#{version}/keystats-#{version}-macos-arm64.zip"
   name "Keystats"
@@ -10,18 +10,16 @@ cask "keystats" do
   depends_on macos: ">= :ventura"
   depends_on arch: :arm64
 
-  # 同梱の install.command が ~/Applications への配置と LaunchAgent 登録、
-  # 入力監視パネルの案内までを行う(署名は安定DRなので更新後も権限維持)。
-  installer script: {
-    executable: "keystats-#{version}/install.command",
-  }
+  app "keystats-#{version}/Keystats.app"
+  # CLI(top/apps/combos)。デーモン本体と同じバイナリ。
+  binary "#{appdir}/Keystats.app/Contents/MacOS/keystatsd", target: "keystats"
 
-  uninstall launchctl: [
+  uninstall quit:     "net.gapul.keystats.gui",
+            launchctl: [
               "net.gapul.keystats",
               "net.gapul.keystats.gui",
               "net.gapul.keystats.update",
-            ],
-            delete:    "#{Dir.home}/Applications/Keystats.app"
+            ]
 
   zap trash: [
     "~/Library/LaunchAgents/net.gapul.keystats.plist",
@@ -32,7 +30,8 @@ cask "keystats" do
   ]
 
   caveats <<~EOS
-    初回は「システム設定 > プライバシーとセキュリティ > 入力監視」で
-    "Keystats" をオンにすると記録が始まります。
+    初回は Launchpad などから Keystats を起動してください。
+    「システム設定 > プライバシーとセキュリティ > 入力監視」で "Keystats" を
+    オンにすると記録が始まります(メニューバーに常駐します)。
   EOS
 end
