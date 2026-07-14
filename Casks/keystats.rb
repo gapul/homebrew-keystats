@@ -7,6 +7,11 @@ cask "keystats" do
   desc "打鍵アナリティクス — キー×アプリ統計。入力テキスト本文は保存しない"
   homepage "https://github.com/gapul/keystats"
 
+  livecheck do
+    url :url
+    strategy :github_latest
+  end
+
   depends_on macos: :ventura
   depends_on arch: :arm64
 
