@@ -1,6 +1,6 @@
 cask "keystats" do
-  version "0.6.0"
-  sha256 "b6497f07b92017bce918262b0dc1f97aabace3bc377717263017a250db0addaf"
+  version "0.7.0"
+  sha256 "7aa8a1a7cb2a1cbf2d62dc25bee0d234f418967f56d3a8033d514ac58160914f"
 
   url "https://github.com/gapul/keystats/releases/download/v#{version}/keystats-#{version}-macos-arm64.zip"
   name "Keystats"
