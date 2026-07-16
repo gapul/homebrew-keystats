@@ -1,6 +1,6 @@
 cask "keystats" do
-  version "0.9.1"
-  sha256 "3783df7913a979c75409e75b32851a380706d2ed55f0c6ea42dd53cae0e4391c"
+  version "0.9.2"
+  sha256 "b3ff075dbfcf5f9d288f0faada9625107e02f26facb49aeda44504ce287fb93f"
 
   url "https://github.com/gapul/keystats/releases/download/v#{version}/keystats-#{version}-macos-arm64.zip"
   name "Keystats"
@@ -19,12 +19,10 @@ cask "keystats" do
   # CLI(top/apps/combos)。デーモン本体と同じバイナリ。
   binary "#{appdir}/Keystats.app/Contents/MacOS/keystatsd", target: "keystats"
 
-  uninstall quit:      "net.gapul.keystats.gui",
-            launchctl: [
-              "net.gapul.keystats",
-              "net.gapul.keystats.gui",
-              "net.gapul.keystats.update",
-            ]
+  # launchctl は使わない: brew が system ドメインへ sudo bootout を試み、アップグレードで
+  # パスワード待ちになる(headless では詰まる)。常駐エージェントはアプリが自己登録/自己更新し、
+  # 完全削除は `brew uninstall --zap` の zap 側で plist を掃除する。
+  uninstall quit: "net.gapul.keystats.gui"
 
   zap trash: [
     "~/Library/LaunchAgents/net.gapul.keystats.plist",
