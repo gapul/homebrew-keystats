@@ -2,14 +2,14 @@ name: autobump cask
 
 # keystats に新リリースが出たら Casks/keystats.rb の version と sha256 を
 # 自動で更新して commit する。トリガーは 3 系統:
-#   - schedule : 6 時間ごとに最新リリースを確認(取りこぼしの保険)
+#   - schedule : 1 時間ごとに最新リリースを確認(取りこぼしの保険)
 #   - workflow_dispatch : 手動実行(Actions タブのボタン)
 #   - repository_dispatch : keystats 側の release から即時発火させたい場合
 #     (dist.sh などから `gh api .../dispatches -f event_type=keystats-release`)
 
 on:
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: "17 * * * *"
   workflow_dispatch:
   repository_dispatch:
     types: [keystats-release]
@@ -35,7 +35,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          latest="$(gh release view -R "$SRC_REPO" --json tagName -q .tagName)"
+          release="$(gh api "repos/$SRC_REPO/releases/latest")"
+          latest="$(jq -r .tag_name <<<"$release")"
           latest="${latest#v}"
           current="$(sed -nE 's/^[[:space:]]*version "([^"]+)".*/\1/p' "$CASK" | head -1)"
           echo "current=$current  latest=$latest"
@@ -45,11 +46,9 @@ jobs:
             exit 0
           fi
 
-          url="https://github.com/$SRC_REPO/releases/download/v${latest}/keystats-${latest}-macos-arm64.zip"
-          echo "downloading $url"
-          curl -fL --retry 3 -o pkg.zip "$url"
-          sha="$(sha256sum pkg.zip | cut -d' ' -f1)"
-          rm -f pkg.zip
+          asset="keystats-${latest}-macos-arm64.zip"
+          digest="$(jq -r --arg name "$asset" '.assets[] | select(.name == $name) | .digest' <<<"$release")"
+          case "$digest" in sha256:*) sha="${digest#sha256:}" ;; *) echo "missing sha256 for $asset" >&2; exit 1 ;; esac
           echo "sha256=$sha"
 
           # version と sha256 の行を差し替え(url は #{version} 展開なので触らない)
